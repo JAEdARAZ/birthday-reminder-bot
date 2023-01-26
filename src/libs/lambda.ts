@@ -1,8 +1,8 @@
 import middy from "@middy/core"
 import middyJsonBodyParser from "@middy/http-json-body-parser"
 import type { AWS } from "@serverless/typescript";
-import { joiValidatorMiddleware } from "./joiValidator";
-import { errorHandlerMiddleware } from "./errorHandler";
+import { joiValidatorMiddleware } from "./joi-validator";
+import { errorHandlerMiddleware } from "./error-handler";
 
 export const middyfy = (handler, schema) => {
   return middy(handler)

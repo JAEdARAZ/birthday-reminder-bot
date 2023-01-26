@@ -1,5 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 import { functions } from '@functions/functions';
+import { dynamoResources } from 'src/resources/dynamo';
+
 
 const serverlessConfiguration: AWS = {
   service: 'birthday-reminder-bot',
@@ -9,6 +11,14 @@ const serverlessConfiguration: AWS = {
     name: 'aws',
     runtime: 'nodejs14.x',
     region: 'eu-west-1',
+    iamRoleStatements: [
+      {
+        Effect: "Allow",
+        Action: "dynamodb:*",
+        Resource:
+          "arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/Birthdays",
+      },
+    ],
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -20,6 +30,11 @@ const serverlessConfiguration: AWS = {
   },
   // import the function via paths
   functions,
+  resources: {
+    Resources: {
+      ...dynamoResources
+    }
+  },
   package: { individually: true },
   custom: {
     esbuild: {

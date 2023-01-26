@@ -1,7 +1,7 @@
 import type { AWS } from "@serverless/typescript";
 
 export const functions: AWS["functions"] = {
-  combinationAPI: {
+  getBirthdays: {
     handler: 'src/functions/get-birthdays/index.handler',
     events: [
       {
