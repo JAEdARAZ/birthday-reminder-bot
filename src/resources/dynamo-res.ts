@@ -4,7 +4,7 @@ export const dynamoResources: AWS["resources"]["Resources"] = {
   myTable: {
     Type: "AWS::DynamoDB::Table",
     Properties: {
-      TableName: "Birthdays",
+      TableName: "${self:custom.birthdaysTable}",
       AttributeDefinitions: [
         {
           AttributeName: "id",

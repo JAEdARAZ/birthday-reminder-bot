@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 import { functions } from '@functions/functions';
-import { dynamoResources } from 'src/resources/dynamo';
+import { dynamoResources } from 'src/resources/dynamo-res';
 
 
 const serverlessConfiguration: AWS = {
@@ -16,7 +16,7 @@ const serverlessConfiguration: AWS = {
         Effect: "Allow",
         Action: "dynamodb:*",
         Resource:
-          "arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/Birthdays",
+          "arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/${self:custom.birthdaysTable}",
       },
     ],
     apiGateway: {
@@ -26,6 +26,7 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
+      BIRTHDAY_TABLE_NAME: '${self:custom.birthdaysTable}'
     },
   },
   // import the function via paths
@@ -37,6 +38,8 @@ const serverlessConfiguration: AWS = {
   },
   package: { individually: true },
   custom: {
+    birthdaysTable: 'Birthdays',
+
     esbuild: {
       bundle: true,
       minify: false,

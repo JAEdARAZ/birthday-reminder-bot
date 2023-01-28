@@ -2,11 +2,8 @@ import { dynamoDocClient } from "./clients/dynamo-client";
 
 async function getBirthdays() {
   const response = await dynamoDocClient.scan({
-    TableName: "Birthdays"
+    TableName: process.env.BIRTHDAY_TABLE_NAME
   })
-
-  console.log(response);
-  
 
   return response.Items;
 }
