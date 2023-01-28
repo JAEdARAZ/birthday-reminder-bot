@@ -11,5 +11,16 @@ export const functions: AWS["functions"] = {
         }
       }
     ]
+  },
+  addBirthday: {
+    handler: 'src/functions/add-birthday/index.handler',
+    events: [
+      {
+        httpApi: {
+          path: '/birthdays',
+          method: 'post'
+        }
+      }
+    ]
   }
 }

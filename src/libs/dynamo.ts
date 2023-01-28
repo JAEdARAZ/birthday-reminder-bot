@@ -8,6 +8,13 @@ async function getBirthdays() {
   return response.Items;
 }
 
+async function addBirthday(birthday: any) {
+  await dynamoDocClient.put({
+    TableName: process.env.BIRTHDAY_TABLE_NAME,
+    Item: birthday
+  });
+}
+
 export {
-  getBirthdays
+  getBirthdays, addBirthday
 }
