@@ -1,7 +1,7 @@
 import type { AWS } from "@serverless/typescript";
 
 export const dynamoResources: AWS["resources"]["Resources"] = {
-  myTable: {
+  birthdays: {
     Type: "AWS::DynamoDB::Table",
     Properties: {
       TableName: "${self:custom.birthdaysTable}",
@@ -20,7 +20,10 @@ export const dynamoResources: AWS["resources"]["Resources"] = {
       ProvisionedThroughput: {
         "ReadCapacityUnits": 1,
         "WriteCapacityUnits": 1
-      }
+      },
+      StreamSpecification: {
+        StreamViewType : "OLD_IMAGE"
+      }     
     }
   }
 }

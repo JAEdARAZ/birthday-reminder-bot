@@ -22,5 +22,18 @@ export const functions: AWS["functions"] = {
         }
       }
     ]
+  },
+  sendBirthdayAlert: {
+    handler: 'src/functions/send-birthday-alert/index.handler',
+    events: [
+      {
+        stream: {
+          type: 'dynamodb',
+          batchSize: 1,
+          startingPosition: 'LATEST',
+          arn: { "Fn::GetAtt": ["birthdays", "StreamArn"] }
+        }
+      }
+    ]
   }
 }
