@@ -10,3 +10,4 @@ jspm_packages
 
 # 
 sandbox
+src/functions/send-birthday-alert/emails.ts

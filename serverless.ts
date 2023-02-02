@@ -18,6 +18,11 @@ const serverlessConfiguration: AWS = {
         Resource:
           "arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/${self:custom.birthdaysTable}",
       },
+      {
+        Effect: "Allow",
+        Action: ["ses:SendEmail", "ses:SendRawEmail"],
+        Resource: "*"
+      },
     ],
     apiGateway: {
       minimumCompressionSize: 1024,
