@@ -22,8 +22,12 @@ export const dynamoResources: AWS["resources"]["Resources"] = {
         "WriteCapacityUnits": 1
       },
       StreamSpecification: {
-        StreamViewType : "OLD_IMAGE"
-      }     
+        StreamViewType: "OLD_IMAGE"
+      },
+      TimeToLiveSpecification: {
+        "AttributeName": "TTL",
+        "Enabled": true
+      }
     }
   }
 }

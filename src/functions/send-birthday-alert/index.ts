@@ -2,6 +2,9 @@ import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { DynamoDBStreamEvent } from "aws-lambda";
 import { emails } from "./emails";
+import { addBirthday } from "@libs/dynamo";
+import { getBirthdayTTL } from "@libs/utils";
+import { v4 as uuid } from "uuid";
 
 const DELETE_EVENT = "REMOVE";
 
@@ -11,7 +14,13 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     // @ts-ignore
     const birthday = unmarshall(record.dynamodb.OldImage);
     console.log(JSON.stringify(birthday));
-    await sendEmail(birthday);
+
+    try {
+      await sendEmail(birthday);
+      await addBirthdayNextYear(birthday);
+    } catch (error) {
+      console.log((error));
+    }
   }
 }
 
@@ -23,13 +32,23 @@ async function sendEmail(birthday: any) {
     },
     Message: {
       Body: {
-        Text: { Data: `Is ${birthday.name.toUpperCase()} birthday (${birthday.birthday})` }
+        Text: { Data: `It is ${birthday.name.toUpperCase()} birthday (${birthday.birthday})` }
       },
-      Subject: { Data: `${birthday.name} BIRTHDAY!!` }
+      Subject: { Data: `${birthday.name.toUpperCase()} BIRTHDAY!!` }
     },
     Source: emails.from
   });
 
   console.log(JSON.stringify(command));
   await client.send(command);
+}
+
+async function addBirthdayNextYear(birthday: any) {
+  const secondsToNextBirthday = getBirthdayTTL(birthday.birthday);
+  await addBirthday({
+    id: uuid(),
+    birthday: birthday.birthday,
+    name: birthday.name,
+    TTL: secondsToNextBirthday
+  });
 }
