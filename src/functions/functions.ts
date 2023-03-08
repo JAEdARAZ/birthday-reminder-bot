@@ -35,5 +35,16 @@ export const functions: AWS["functions"] = {
         }
       }
     ]
+  },
+  birthdaysBot: {
+    handler: 'src/functions/birthdays-bot/index.handler',
+    events: [
+      {
+        httpApi: {
+          path: '/bot',
+          method: 'post'
+        }
+      }
+    ]
   }
 }
