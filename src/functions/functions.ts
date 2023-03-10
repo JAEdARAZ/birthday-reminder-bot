@@ -45,6 +45,9 @@ export const functions: AWS["functions"] = {
           method: 'post'
         }
       }
-    ]
+    ],
+    environment: {
+      "TELEGRAM_BOT_TOKEN": "${param:telegramBotSecret}"
+    }
   }
 }
