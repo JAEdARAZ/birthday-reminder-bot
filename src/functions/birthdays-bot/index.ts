@@ -1,21 +1,31 @@
 import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
+import { addBirthday, getBirthdays } from "@libs/dynamo";
 import { schema } from "./schema";
+import { v4 as uuid } from "uuid";
 import axios from "axios";
+import { commands } from "./commands";
+import { getBirthdayTTL } from "@libs/utils";
 
 const handlerLambda: ValidatedEventAPIGatewayProxyEvent = async (event) => {
   console.log(JSON.stringify(event));
   const chatId: string = event.body.message.chat.id;
   const message: string = event.body.message.text || "";
   const messageArr: string[] = message.split("\n");
+  console.log(messageArr);
   const command: string = messageArr[0];
 
   switch (command) {
     case "/getBirthdays":
-      const data = await getBirthdays();
-      await sendResponse(chatId, data);
+      const birthdays = await invokeGetBirthdays();
+      await sendResponse(chatId, birthdays);
       break;
+    case "/addBirthday":
+      await invokeAddBirthday(messageArr.slice(1));
+      break;
+    default:
+      await sendExistingCommands(chatId);
   }
 
   return formatJSONResponse({
@@ -24,10 +34,37 @@ const handlerLambda: ValidatedEventAPIGatewayProxyEvent = async (event) => {
   })
 }
 
-//mock response
-async function getBirthdays() {
-  const birthdays = ["Jaime: 10/06/1996", "Kristine: 20/09/1996"];
-  return birthdays.join("\n");
+async function invokeGetBirthdays() {
+  try {
+    const birthdays = await getBirthdays();
+    const birthdaysArr = birthdays.map(b => {
+      return `${b.name} - ${b.birthday}`
+    });
+    return birthdaysArr.join("\n");
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function sendExistingCommands(chatId: string) {
+  for (const command of commands) {
+    await sendResponse(chatId, command);
+  }
+}
+
+async function invokeAddBirthday(bodyArr: string[]) {
+  try {
+    const body = JSON.parse(bodyArr.join(""));
+    const secondsToNextBirthday = getBirthdayTTL(body.birthday);
+    await addBirthday({
+      id: uuid(),
+      birthday: body.birthday,
+      name: body.name,
+      TTL: secondsToNextBirthday
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function sendResponse(chatId: string, data: string) {
@@ -42,9 +79,9 @@ async function sendResponse(chatId: string, data: string) {
     }
   }
 
+  console.log(JSON.stringify(params));
   try {
-    const { data: response } = await axios.get(telegramUrl, params);
-    console.log(response);
+    await axios.get(telegramUrl, params);
   } catch (error) {
     console.log(error);
   }
