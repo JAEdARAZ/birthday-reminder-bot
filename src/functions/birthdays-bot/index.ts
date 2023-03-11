@@ -23,6 +23,7 @@ const handlerLambda: ValidatedEventAPIGatewayProxyEvent = async (event) => {
       break;
     case "/addBirthday":
       await invokeAddBirthday(messageArr.slice(1));
+      await sendResponse(chatId, "Birthday added successfully!");
       break;
     default:
       await sendExistingCommands(chatId);
