@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export const getBirthdayTTL = (birthday: string) => {
   let today = new Date();
   let todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(),
@@ -13,4 +15,24 @@ export const getBirthdayTTL = (birthday: string) => {
 
   const secondsToNextBirthday = nextBirthdayUTC.getTime() / 1000 - todayUTC.getTime() / 1000;
   return secondsToNextBirthday;
+}
+
+export const sendResponse = async (chatId: string, data: string) => {
+  const telegramUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const params = {
+    headers: {
+      "Content-Type": "application/json"
+    },
+    params: {
+      text: data,
+      chat_id: chatId
+    }
+  }
+
+  console.log(JSON.stringify(params));
+  try {
+    await axios.get(telegramUrl, params);
+  } catch (error) {
+    console.log(error);
+  }
 }

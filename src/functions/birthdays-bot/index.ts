@@ -4,29 +4,26 @@ import { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { addBirthday, getBirthdays } from "@libs/dynamo";
 import { schema } from "./schema";
 import { v4 as uuid } from "uuid";
-import axios from "axios";
 import { commands } from "./commands";
-import { getBirthdayTTL } from "@libs/utils";
+import { getBirthdayTTL, sendResponse } from "@libs/utils";
+const CHAT_ID = process.env.CHAT_ID;
 
 const handlerLambda: ValidatedEventAPIGatewayProxyEvent = async (event) => {
   console.log(JSON.stringify(event));
-  const chatId: string = event.body.message.chat.id;
   const message: string = event.body.message.text || "";
   const messageArr: string[] = message.split("\n");
-  console.log(messageArr);
   const command: string = messageArr[0];
 
   switch (command) {
     case "/getBirthdays":
       const birthdays = await invokeGetBirthdays();
-      await sendResponse(chatId, birthdays);
+      await sendResponse(CHAT_ID, birthdays);
       break;
     case "/addBirthday":
       await invokeAddBirthday(messageArr.slice(1));
-      await sendResponse(chatId, "Birthday added successfully!");
       break;
     default:
-      await sendExistingCommands(chatId);
+      await sendExistingCommands();
   }
 
   return formatJSONResponse({
@@ -47,15 +44,15 @@ async function invokeGetBirthdays() {
   }
 }
 
-async function sendExistingCommands(chatId: string) {
+async function sendExistingCommands() {
   for (const command of commands) {
-    await sendResponse(chatId, command);
+    await sendResponse(CHAT_ID, command);
   }
 }
 
 async function invokeAddBirthday(bodyArr: string[]) {
   try {
-    const body = JSON.parse(bodyArr.join(""));
+    const body = JSON.parse(bodyArr.map(b => b.trim()).join(""));
     const secondsToNextBirthday = getBirthdayTTL(body.birthday);
     await addBirthday({
       id: uuid(),
@@ -63,27 +60,9 @@ async function invokeAddBirthday(bodyArr: string[]) {
       name: body.name,
       TTL: secondsToNextBirthday
     });
+    await sendResponse(CHAT_ID, "Birthday added successfully!");
   } catch (error) {
-    console.log(error);
-  }
-}
-
-async function sendResponse(chatId: string, data: string) {
-  const telegramUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
-  const params = {
-    headers: {
-      "Content-Type": "application/json"
-    },
-    params: {
-      text: data,
-      chat_id: chatId
-    }
-  }
-
-  console.log(JSON.stringify(params));
-  try {
-    await axios.get(telegramUrl, params);
-  } catch (error) {
+    await sendResponse(CHAT_ID, "ERROR adding birthday");
     console.log(error);
   }
 }

@@ -34,7 +34,11 @@ export const functions: AWS["functions"] = {
           arn: { "Fn::GetAtt": ["birthdays", "StreamArn"] }
         }
       }
-    ]
+    ],
+    environment: {
+      "TELEGRAM_BOT_TOKEN": "${param:telegramBotSecret}",
+      "CHAT_ID": "${param:chatId}"
+    }
   },
   birthdaysBot: {
     handler: 'src/functions/birthdays-bot/index.handler',
@@ -47,7 +51,8 @@ export const functions: AWS["functions"] = {
       }
     ],
     environment: {
-      "TELEGRAM_BOT_TOKEN": "${param:telegramBotSecret}"
+      "TELEGRAM_BOT_TOKEN": "${param:telegramBotSecret}",
+      "CHAT_ID": "${param:chatId}"
     }
   }
 }
