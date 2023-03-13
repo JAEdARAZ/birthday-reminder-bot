@@ -1,6 +1,6 @@
 import { formatJSONResponse } from "@libs/api-gateway";
 import { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
-import { addBirthday, getBirthdays } from "@libs/dynamo";
+import { addBirthday, getBirthdays, getBirthdaysByMonth } from "@libs/dynamo";
 import { v4 as uuid } from "uuid";
 import { commands } from "./commands";
 import { getBirthdayTTL, sendResponse } from "@libs/utils";
@@ -21,6 +21,10 @@ const handlerLambda: ValidatedEventAPIGatewayProxyEvent = async (event) => {
       break;
     case "/addBirthday":
       await invokeAddBirthday(messageArr.slice(1));
+      break;
+    case "/getBirthdaysByMonth":
+      const monthBirthdays = await invokeGetBirthdaysByMonth(messageArr.slice(1));
+      await sendResponse(CHAT_ID, monthBirthdays);
       break;
     default:
       await sendExistingCommands();
@@ -44,18 +48,12 @@ async function invokeGetBirthdays() {
   }
 }
 
-async function sendExistingCommands() {
-  for (const command of commands) {
-    await sendResponse(CHAT_ID, command);
-  }
-}
-
 async function invokeAddBirthday(bodyArr: string[]) {
   try {
     const body = JSON.parse(bodyArr.map(b => b.trim()).join(""));
     validateBirthdayInput(body);
     const secondsToNextBirthday = getBirthdayTTL(body.birthday);
-    const birthdayArr = body.birthday;
+    const birthdayArr = body.birthday.split("/");
     await addBirthday({
       id: uuid(),
       month: parseInt(birthdayArr[1], 10),
@@ -71,10 +69,29 @@ async function invokeAddBirthday(bodyArr: string[]) {
   }
 }
 
+async function invokeGetBirthdaysByMonth(bodyArr: string[]) {
+  try {
+    const body = JSON.parse(bodyArr.map(b => b.trim()).join(""));
+    const birthdays = await getBirthdaysByMonth(parseInt(body.month, 10));
+    const birthdaysArr = birthdays.map(b => {
+      return `${b.name} - ${b.birthday}`
+    });
+    return birthdaysArr.join("\n");
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 function validateBirthdayInput(body) {
   const { error } = schema.validate(body);
   if (error) {
     throw error;
+  }
+}
+
+async function sendExistingCommands() {
+  for (const command of commands) {
+    await sendResponse(CHAT_ID, command);
   }
 }
 

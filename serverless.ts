@@ -15,8 +15,10 @@ const serverlessConfiguration: AWS = {
       {
         Effect: "Allow",
         Action: "dynamodb:*",
-        Resource:
+        Resource: [
           "arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/${self:custom.birthdaysTable}",
+          "arn:aws:dynamodb:${self:provider.region}:${aws:accountId}:table/${self:custom.birthdaysTable}/*"
+        ]
       },
       {
         Effect: "Allow",
