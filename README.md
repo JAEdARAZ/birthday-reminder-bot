@@ -1,6 +1,6 @@
 ## Deploy
 Deploy stack with the following command: 
-`sls deploy --param="telegramBotSecret=INSERT_SECRET"`
+`sls deploy --param="telegramBotSecret=INSERT_SECRET" --param="chatId=INSERT_CHAT_ID`
 
 ## Possible new features
 - Search birthdays by month / send message every 1st of month with the birthdays (GSI).
