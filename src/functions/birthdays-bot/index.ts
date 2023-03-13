@@ -1,11 +1,11 @@
 import { formatJSONResponse } from "@libs/api-gateway";
-import { middyfy } from "@libs/lambda";
 import { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { addBirthday, getBirthdays } from "@libs/dynamo";
-import { schema } from "./schema";
 import { v4 as uuid } from "uuid";
 import { commands } from "./commands";
 import { getBirthdayTTL, sendResponse } from "@libs/utils";
+import { schema } from "./schema";
+import { middifyBot } from "@libs/lambda";
 const CHAT_ID = process.env.CHAT_ID;
 
 const handlerLambda: ValidatedEventAPIGatewayProxyEvent = async (event) => {
@@ -53,6 +53,7 @@ async function sendExistingCommands() {
 async function invokeAddBirthday(bodyArr: string[]) {
   try {
     const body = JSON.parse(bodyArr.map(b => b.trim()).join(""));
+    validateBirthdayInput(body);
     const secondsToNextBirthday = getBirthdayTTL(body.birthday);
     await addBirthday({
       id: uuid(),
@@ -67,4 +68,11 @@ async function invokeAddBirthday(bodyArr: string[]) {
   }
 }
 
-export const handler = middyfy(handlerLambda, schema);
+function validateBirthdayInput(body) {
+  const { error } = schema.validate(body);
+  if (error) {
+    throw error;
+  }
+}
+
+export const handler = middifyBot(handlerLambda);

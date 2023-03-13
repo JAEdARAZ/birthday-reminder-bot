@@ -10,5 +10,11 @@ export const middyfy = (handler, schema) => {
     .use(joiValidatorMiddleware({ schema }))
     .use(errorHandlerMiddleware())
 }
+
+export const middifyBot = (handler) => {
+  return middy(handler)
+    .use(middyJsonBodyParser())
+}
+
 // AWSFunction type
 export type AWSFunction = AWS['functions'][0];

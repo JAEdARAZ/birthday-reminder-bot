@@ -14,7 +14,8 @@ export const getBirthdayTTL = (birthday: string) => {
   }
 
   const secondsToNextBirthday = nextBirthdayUTC.getTime() / 1000 - todayUTC.getTime() / 1000;
-  return secondsToNextBirthday;
+  const birthdayTTL = todayUTC.getTime() / 1000 + secondsToNextBirthday;
+  return birthdayTTL;
 }
 
 export const sendResponse = async (chatId: string, data: string) => {
