@@ -9,6 +9,14 @@ export const dynamoResources: AWS["resources"]["Resources"] = {
         {
           AttributeName: "id",
           AttributeType: "S"
+        },
+        {
+          AttributeName: "month",
+          AttributeType: "N"
+        },
+        {
+          AttributeName: "day",
+          AttributeType: "N"
         }
       ],
       KeySchema: [
@@ -17,17 +25,32 @@ export const dynamoResources: AWS["resources"]["Resources"] = {
           KeyType: "HASH"
         }
       ],
-      ProvisionedThroughput: {
-        "ReadCapacityUnits": 1,
-        "WriteCapacityUnits": 1
-      },
+      BillingMode: "PAY_PER_REQUEST",
       StreamSpecification: {
         StreamViewType: "OLD_IMAGE"
       },
       TimeToLiveSpecification: {
-        "AttributeName": "TTL",
-        "Enabled": true
-      }
+        AttributeName: "TTL",
+        Enabled: true
+      },
+      GlobalSecondaryIndexes: [
+        {
+          IndexName: "GS1",
+          KeySchema: [
+            {
+              AttributeName: "month",
+              KeyType: "HASH"
+            },
+            {
+              AttributeName: "day",
+              KeyType: "RANGE"
+            }
+          ],
+          Projection: {
+            ProjectionType: "ALL"
+          }
+        }
+      ]
     }
   }
 }
