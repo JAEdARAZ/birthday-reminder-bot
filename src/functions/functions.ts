@@ -1,23 +1,12 @@
 import type { AWS } from "@serverless/typescript";
 
 export const functions: AWS["functions"] = {
-  getBirthdays: {
-    handler: 'src/functions/get-birthdays/index.handler',
+  birthdaysBot: {
+    handler: 'src/functions/birthdays-bot/index.handler',
     events: [
       {
         httpApi: {
-          path: '/birthdays',
-          method: 'get'
-        }
-      }
-    ]
-  },
-  addBirthday: {
-    handler: 'src/functions/add-birthday/index.handler',
-    events: [
-      {
-        httpApi: {
-          path: '/birthdays',
+          path: '/bot',
           method: 'post'
         }
       }
@@ -34,25 +23,19 @@ export const functions: AWS["functions"] = {
           arn: { "Fn::GetAtt": ["birthdays", "StreamArn"] }
         }
       }
-    ],
-    environment: {
-      "TELEGRAM_BOT_TOKEN": "${param:telegramBotSecret}",
-      "CHAT_ID": "${param:chatId}"
-    }
+    ]
   },
-  birthdaysBot: {
-    handler: 'src/functions/birthdays-bot/index.handler',
+  birthdaysChecker: {
+    handler: 'src/functions/birthdays-checker/index.handler',
     events: [
       {
-        httpApi: {
-          path: '/bot',
-          method: 'post'
+        schedule: {
+          rate: [
+            //"rate(1 minute)"
+            "cron(0 12 * * ? *)"
+          ]
         }
       }
-    ],
-    environment: {
-      "TELEGRAM_BOT_TOKEN": "${param:telegramBotSecret}",
-      "CHAT_ID": "${param:chatId}"
-    }
+    ]
   }
 }

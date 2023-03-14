@@ -52,15 +52,13 @@ async function invokeAddBirthday(bodyArr: string[]) {
   try {
     const body = JSON.parse(bodyArr.map(b => b.trim()).join(""));
     validateBirthdayInput(body);
-    const secondsToNextBirthday = getBirthdayTTL(body.birthday);
     const birthdayArr = body.birthday.split("/");
     await addBirthday({
       id: uuid(),
       month: parseInt(birthdayArr[1], 10),
       day: parseInt(birthdayArr[0], 10),
       birthday: body.birthday,
-      name: body.name,
-      TTL: secondsToNextBirthday
+      name: body.name
     });
     await sendResponse(CHAT_ID, "Birthday added successfully!");
   } catch (error) {
