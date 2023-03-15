@@ -32,7 +32,7 @@ export const functions: AWS["functions"] = {
         schedule: {
           rate: [
             //"rate(1 minute)"
-            "cron(0 12 * * ? *)"
+            "cron(0 18 * * ? *)"
           ]
         }
       }

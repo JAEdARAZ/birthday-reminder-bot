@@ -3,7 +3,7 @@ import { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { addBirthday, getBirthdays, getBirthdaysByMonth } from "@libs/dynamo";
 import { v4 as uuid } from "uuid";
 import { commands } from "./commands";
-import { getBirthdayTTL, sendResponse } from "@libs/utils";
+import { sendResponse } from "@libs/utils";
 import { schema } from "./schema";
 import { middifyBot } from "@libs/lambda";
 const CHAT_ID = process.env.CHAT_ID;
@@ -72,7 +72,7 @@ async function invokeGetBirthdaysByMonth(bodyArr: string[]) {
     const body = JSON.parse(bodyArr.map(b => b.trim()).join(""));
     const birthdays = await getBirthdaysByMonth(parseInt(body.month, 10));
     const birthdaysArr = birthdays.map(b => {
-      return `${b.name} - ${b.birthday}`
+      return `- ${b.name}: ${b.birthday}`
     });
     return birthdaysArr.join("\n");
   } catch (error) {
