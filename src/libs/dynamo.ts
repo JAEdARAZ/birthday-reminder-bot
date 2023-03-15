@@ -33,6 +33,15 @@ async function addBirthday(birthday: any) {
   });
 }
 
+async function deleteBirthday(birthdayId: string) {
+  await dynamoDocClient.delete({
+    TableName: process.env.BIRTHDAY_TABLE_NAME,
+    Key: {
+      id: birthdayId
+    }
+  });
+}
+
 export {
-  getBirthdays, addBirthday, getBirthdaysByMonth
+  getBirthdays, addBirthday, getBirthdaysByMonth, deleteBirthday
 }

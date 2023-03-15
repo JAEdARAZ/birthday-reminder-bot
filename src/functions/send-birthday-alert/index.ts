@@ -1,7 +1,7 @@
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { DynamoDBStreamEvent } from "aws-lambda";
 import { addBirthday } from "@libs/dynamo";
-import { getBirthdayTTL, sendResponse } from "@libs/utils";
+import { sendResponse } from "@libs/utils";
 import { v4 as uuid } from "uuid";
 
 const DELETE_EVENT = "REMOVE";
@@ -23,11 +23,11 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 }
 
 async function addBirthdayNextYear(birthday: any) {
-  const secondsToNextBirthday = getBirthdayTTL(birthday.birthday);
   await addBirthday({
     id: uuid(),
     birthday: birthday.birthday,
     name: birthday.name,
-    TTL: secondsToNextBirthday
+    month: birthday.month,
+    day: birthday.day
   });
 }
